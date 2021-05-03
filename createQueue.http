@@ -16,7 +16,7 @@ X-SecretKey: {{Secret}}
 ###
 
 #Set / Create Matchmaking queue
-@QueueName = PlayerExpansionOverTime3
+@QueueName = StringTest
 POST https://{{TitleId}}.playfabapi.com/Match/SetMatchmakingQueue?
 Content-Type: application/json
 Accept-Encoding: gzip
@@ -26,33 +26,18 @@ X-EntityToken: {{EntityToken}}
 {
     "MatchmakingQueue": {
         "Name": "{{QueueName}}",
-        "MinMatchSize": 1,
+        "MinMatchSize": 2,
         "MaxMatchSize": 4,
         "ServerAllocationEnabled": false,
-        "MatchTotalRules": [
+        "StringEqualityRules": [
             {
                 "Attribute": {
-                    "Path": "PlayerCount",
+                    "Path": "version",
                     "Source": "User"
                 },
-                "Max": 4,
-                "Weight": 1,
-                "Expansion": {
-                    "MinOverrides": [
-                        {
-                            "Value": 3
-                        },
-                        {
-                            "Value": 2
-                        },
-                        {
-                            "Value": 1
-                        }
-                    ],
-                    "SecondsBetweenExpansions": 10
-                },
-                "Name": "PlayersRequiredRule",
-                "SecondsUntilOptional": 30
+                "Weight": 1,              
+                "Name": "VersionRequiered",
+                "AttributeNotSpecifiedBehavior": "MatchAny"
             }
         ],
         "StatisticsVisibilityToPlayers": {
@@ -79,7 +64,7 @@ X-PlayFabSDK: PostmanCollection-0.121.210406
 ###
 
 @PlayerEntityToken = 
-
+@PlayerPlayerId = 
 #Create matchmaking ticket
 POST https://{{TitleId}}.playfabapi.com/Match/CreateMatchmakingTicket
 Content-Type: application/json
@@ -90,25 +75,67 @@ X-EntityToken: {{PlayerEntityToken}}
 {
   "Creator": {
       "Entity" : {
-          "Id": "518C0EC3BD870B18",
+          "Id": "{{PlayerPlayerId}}",
           "Type": "title_player_account"
       },
       "Attributes": {
           "DataObject": {
-              "PlayerCount": 4
+              "version": "1"
           }
       }
 
   },
   "MembersToMatchWith": [],
-  "GiveUpAfterSeconds": 10,
+  "GiveUpAfterSeconds": 1000,
   "QueueName": "{{QueueName}}"
 }
 
-@TicketId = e8d417b2-d376-4f00-afeb-906f63863dea
+@TicketId = 
 
 ###
+#PLayer2
+@player2CustomId = 
 
+POST https://titleId.playfabapi.com/Client/LoginWithCustomID
+Content-Type: application/json
+Accept-Encoding: gzip
+X-PlayFabSDK: PostmanCollection-0.121.210406
+
+{
+    
+    "CustomId": "{{player2CustomId}}",
+    "TitleId": "{{TitleId}}",
+}
+
+###
+@player2Session = 
+@player2PlayerID = 
+
+POST https://{{TitleId}}.playfabapi.com/Match/CreateMatchmakingTicket
+Content-Type: application/json
+Accept-Encoding: gzip
+X-PlayFabSDK: PostmanCollection-0.121.210406
+X-EntityToken: {{player2Session}}
+
+{
+  "Creator": {
+      "Entity" : {
+          "Id": "{{player2PlayerID}}",
+          "Type": "title_player_account"
+      },
+      "Attributes": {
+          "DataObject": {
+              "version": "1"
+          }
+      }
+
+  },
+  "MembersToMatchWith": [],
+  "GiveUpAfterSeconds": 1000,
+  "QueueName": "{{QueueName}}"
+}
+
+###
 #Get Matchmaking ticket
 POST https://titleId.playfabapi.com/Match/GetMatchmakingTicket
 Content-Type: application/json
